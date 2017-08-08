@@ -1,3 +1,7 @@
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.google.common.base.Function;
 import org.junit.After;
 import org.junit.Before;
@@ -9,7 +13,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.FluentWait;
 
 
-
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +31,12 @@ public class TheDemoSiteLogIn_2 {
     private Add_a_User add_a_user;
     private LodInPage lodInPage;
     private FluentWait<WebDriver> wait;
+
+    private ExtentReports report;
+    private ExtentTest test;
+    private String reportFilePath = "user.html";
+    private ScreenShot screenShot;
+
 //    @BeforeClass
 //    public static void bClass() {
 //        System.out.println("BeforeClass");
@@ -51,12 +61,25 @@ public class TheDemoSiteLogIn_2 {
                 .withTimeout(30, SECONDS)
                 .pollingEvery(5, SECONDS)
                 .ignoring(NoSuchElementException.class);
+
+
+        report = new ExtentReports();
+        ExtentHtmlReporter extentHtmlReporter = new ExtentHtmlReporter(reportFilePath);
+        extentHtmlReporter.config().setReportName("ReportName");
+        extentHtmlReporter.config().setDocumentTitle("DocumentTitle");
+        report.attachReporter(extentHtmlReporter);
+        test = report.createTest("TestName");
+        screenShot = new ScreenShot();
+
+
     }
 
     @After
     public void aTest() {
         System.out.println("After");
         webDriver.quit();
+        report.flush();
+
     }
 
 
@@ -64,10 +87,8 @@ public class TheDemoSiteLogIn_2 {
     public void test1() throws InterruptedException {
 
 
-
-
         webDriver.navigate().to("http://thedemosite.co.uk/addauser.php");
-                //TimeUnit.SECONDS.sleep(1);
+        //TimeUnit.SECONDS.sleep(1);
 
         add_a_user.set_password("testsqw");
 //        TimeUnit.SECONDS.sleep(1);
@@ -78,8 +99,8 @@ public class TheDemoSiteLogIn_2 {
         //TimeUnit.SECONDS.sleep(10);
 //        TimeUnit.SECONDS.sleep(1);
         //add_a_user.set_Login();
-                //TimeUnit.SECONDS.sleep(10);
-       // TimeUnit.SECONDS.sleep(1);
+        //TimeUnit.SECONDS.sleep(10);
+        // TimeUnit.SECONDS.sleep(1);
         webDriver.navigate().to("http://thedemosite.co.uk/login.php");
         //TimeUnit.SECONDS.sleep(1);
         lodInPage.set_username("testsqw");
@@ -89,14 +110,22 @@ public class TheDemoSiteLogIn_2 {
 
         String r = wait.until(new Function<WebDriver, String>() {
             public String apply(WebDriver webDriver) {
-                return  lodInPage.get_login();
+                return lodInPage.get_login();
             }
         });
         System.out.println(r);
-        assertEquals("**Failed Login**",r, "**Successful Login**");
+        assertEquals("**Failed Login**", r, "**Successful Login**");
 
-        assertEquals("**Failed Login**",wait.until(webDriver -> lodInPage.get_login()), "**Successful Login**");
+        assertEquals("**Failed Login**", wait.until(webDriver -> lodInPage.get_login()), "**Successful Login**");
 
+
+        try {
+            test.log(Status.INFO, "Info level : "+test.addScreenCaptureFromPath(ScreenShot.take(webDriver, "screenShotName")));
+            test.fail("Failed ");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 //    @Test
