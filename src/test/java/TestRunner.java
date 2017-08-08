@@ -6,8 +6,8 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        Test_1.class,
-        Test_1.class
+        TheDemoSiteLogIn.class,
+
 })
 
 public class TestRunner {
